@@ -2452,6 +2452,60 @@ if ($action == 'create' && $user->rights->commande->creer)
 		<input type="hidden" name="id" value="' . $object->id . '">
 		';
 
+		print '
+			<script>
+				$(function() {
+					let headerSelected;
+					let headerOrderByAsc = false;
+					$("#tablelines > thead > tr").on("click", "td", function() {
+						let changed = false;
+						if ($(this).hasClass("linecoldescription")) {
+							if(headerSelected === "linecoldescription") {
+								headerOrderByAsc = !headerOrderByAsc;
+							} else {
+								headerOrderByAsc = true;
+								headerSelected = "linecoldescription"
+							}
+							changed = true;
+						} else if ($(this).hasClass("linecoluht")) {
+							if(headerSelected === "linecoluht") {
+								headerOrderByAsc = !headerOrderByAsc;
+							} else {
+								headerOrderByAsc = true;
+								headerSelected = "linecoluht"
+							}
+							changed = true;
+						} else if ($(this).hasClass("linecolqty")) {
+							if(headerSelected === "linecolqty") {
+								headerOrderByAsc = !headerOrderByAsc;
+							} else {
+								headerOrderByAsc = true;
+								headerSelected = "linecolqty"
+							}
+							changed = true;
+						} else if ($(this).hasClass("linecolht")) {
+							if(headerSelected === "linecolht") {
+								headerOrderByAsc = !headerOrderByAsc;
+							} else {
+								headerOrderByAsc = true;
+								headerSelected = "linecolht"
+							}
+							changed = true;
+						}
+						if (changed) {
+							$("#tablelines > tbody > tr.drag").order(headerOrderByAsc, function(el) {
+								const number = parseInt($("td."+headerSelected, el).text());
+								if (!isNaN(number)) {
+									return number;
+								}
+								return $("td."+headerSelected, el).text();
+							});
+						}
+					})
+				});
+			</script>
+		';
+
 		if (! empty($conf->use_javascript_ajax) && $object->statut == Commande::STATUS_DRAFT) {
 			include DOL_DOCUMENT_ROOT . '/core/tpl/ajaxrow.tpl.php';
 		}
