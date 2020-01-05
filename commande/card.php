@@ -2453,53 +2453,62 @@ if ($action == 'create' && $user->rights->commande->creer)
 		';
 
 		print '
+			<style>
+				.anchorlike {
+					cursor: pointer;
+    				text-decoration: underline;
+				}
+			</style>
 			<script>
 				$(function() {
-					let headerSelected;
-					let headerOrderByAsc = false;
+					let headerSelected = "linecoldescription";
+					let headerOrderByAsc = true;
+					const columnList = ["linecoldescription", "linecoluht", "linecolqty", "linecolht"];
+					const imgDown = $(\'<span class="nowrap myarrow">'.img_down("A-Z",0).'</span>\');
+					const imgUp = $(\'<span class="nowrap myarrow">'.img_up("Z-A",0).'</span>\');
+					$(".liste_titre > .linecoldescription, .liste_titre > .linecoluht, .liste_titre > .linecolqty,.liste_titre > .linecolht").each(function (i, v) {
+						$(v).addClass("orderby");
+						$(v).contents().wrap(\'<span class="anchorlike" />\');
+					});
+					$(".liste_titre > .linecoldescription").append(imgUp);
 					$("#tablelines > thead > tr").on("click", "td", function() {
+						const me = this;
 						let changed = false;
-						if ($(this).hasClass("linecoldescription")) {
-							if(headerSelected === "linecoldescription") {
-								headerOrderByAsc = !headerOrderByAsc;
-							} else {
-								headerOrderByAsc = true;
-								headerSelected = "linecoldescription"
+						columnList.forEach(function(column) {
+							if ($(me).hasClass(column)) {
+								// Remove arrows
+								$(".myarrow").remove();
+								if(headerSelected === column) {
+									headerOrderByAsc = !headerOrderByAsc;
+								} else {
+									headerOrderByAsc = true;
+									headerSelected = column;
+								}
+								if (headerOrderByAsc) {
+									$(".liste_titre > ." + column).append(imgUp);
+								} else {
+									$(".liste_titre > ." + column).append(imgDown);
+								}
+								changed = true;
 							}
-							changed = true;
-						} else if ($(this).hasClass("linecoluht")) {
-							if(headerSelected === "linecoluht") {
-								headerOrderByAsc = !headerOrderByAsc;
-							} else {
-								headerOrderByAsc = true;
-								headerSelected = "linecoluht"
-							}
-							changed = true;
-						} else if ($(this).hasClass("linecolqty")) {
-							if(headerSelected === "linecolqty") {
-								headerOrderByAsc = !headerOrderByAsc;
-							} else {
-								headerOrderByAsc = true;
-								headerSelected = "linecolqty"
-							}
-							changed = true;
-						} else if ($(this).hasClass("linecolht")) {
-							if(headerSelected === "linecolht") {
-								headerOrderByAsc = !headerOrderByAsc;
-							} else {
-								headerOrderByAsc = true;
-								headerSelected = "linecolht"
-							}
-							changed = true;
-						}
+						});
+						
 						if (changed) {
 							$("#tablelines > tbody > tr.drag").order(headerOrderByAsc, function(el) {
+								 
 								const number = parseInt($("td."+headerSelected, el).text());
+								
 								if (!isNaN(number)) {
-									return number;
+									let data = $("td."+headerSelected, el).text();
+									if (data.indexOf(",") > -1 || data.indexOf(".") > -1) {
+										data = data.slice(0, -3);
+										data = data.replace(".", "").replace(",", "");
+									}
+									return parseInt(data);
 								}
 								return $("td."+headerSelected, el).text();
 							});
+							window.onDropFunction();
 						}
 					})
 				});

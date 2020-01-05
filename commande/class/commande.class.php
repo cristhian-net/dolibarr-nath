@@ -1794,6 +1794,36 @@ class Commande extends CommonOrder
      */
     function fetch_lines($only_product=0)
     {
+        $def = array();
+        $type = 'order';
+        $sql = "SELECT nom";
+        $sql.= " FROM ".MAIN_DB_PREFIX."document_model";
+        $sql.= " WHERE type = '".$type."'";
+        $sql.= " AND entity = 1";
+        $resql= $this->db->query($sql);
+
+        if ($resql)
+        {
+            $i = 0;
+            $num_rows=$this->db->num_rows($resql);
+            while ($i < $num_rows)
+            {
+                $array = $this->db->fetch_array($resql);
+                array_push($def, $array[0]);
+                $i++;
+            }
+        }
+        else
+        {
+            dol_print_error($this->db);
+        }
+
+        // Order by ?
+        if (in_array('set_order_by', $def)){
+            $order_by_ref = ' ORDER BY p.ref, p.label';
+        } else {
+            $order_by_ref = ' ORDER BY l.rang, l.rowid';
+        }
         $this->lines=array();
 
         $sql = 'SELECT l.rowid, l.fk_product, l.fk_parent_line, l.product_type, l.fk_commande, l.label as custom_label, l.description, l.price, l.qty, l.vat_src_code, l.tva_tx,';
@@ -1807,9 +1837,10 @@ class Commande extends CommonOrder
         $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'product as p ON (p.rowid = l.fk_product)';
         $sql.= ' WHERE l.fk_commande = '.$this->id;
         if ($only_product) $sql .= ' AND p.fk_product_type = 0';
-        $sql .= ' ORDER BY l.description, l.rang, l.rowid';
+        $sql .= $order_by_ref;
 
         dol_syslog(get_class($this)."::fetch_lines", LOG_DEBUG);
+        //die($sql);
         $result = $this->db->query($sql);
         if ($result)
         {

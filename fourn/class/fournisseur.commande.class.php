@@ -334,6 +334,36 @@ class CommandeFournisseur extends CommonOrder
      */
     function fetch_lines($only_product=0)
     {
+        $def = array();
+        $type = 'order';
+        $sql = "SELECT nom";
+        $sql.= " FROM ".MAIN_DB_PREFIX."document_model";
+        $sql.= " WHERE type = '".$type."'";
+        $sql.= " AND entity = 1";
+        $resql= $this->db->query($sql);
+
+        if ($resql)
+        {
+            $i = 0;
+            $num_rows=$this->db->num_rows($resql);
+            while ($i < $num_rows)
+            {
+                $array = $this->db->fetch_array($resql);
+                array_push($def, $array[0]);
+                $i++;
+            }
+        }
+        else
+        {
+            dol_print_error($this->db);
+        }
+
+        // Order by ?
+        if (in_array('set_order_by', $def)){
+            $order_by_ref = ' ORDER BY p.ref, p.label';
+        } else {
+            $order_by_ref = ' ORDER BY l.rang, l.rowid';
+        }
     	//$result=$this->fetch_lines();
     	$this->lines=array();
 
@@ -349,7 +379,7 @@ class CommandeFournisseur extends CommonOrder
     	$sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'product as p ON l.fk_product = p.rowid';
     	$sql.= " WHERE l.fk_commande = ".$this->id;
     	if ($only_product) $sql .= ' AND p.fk_product_type = 0';
-    	$sql.= " ORDER BY l.rang, l.rowid";
+    	$sql .= $order_by_ref;
     	//print $sql;
 
     	dol_syslog(get_class($this)."::fetch get lines", LOG_DEBUG);

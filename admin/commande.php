@@ -575,6 +575,34 @@ print '<input type="submit" class="button" value="'.$langs->trans("Modify").'">'
 print "</td></tr>\n";
 print '</form>';
 
+//Use order by ref
+
+print "<form method=\"post\" action=\"".$_SERVER["PHP_SELF"]."\">";
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print "<input type=\"hidden\" name=\"action\" value=\"set_ORDER_BY_REF\">";
+print '<tr class="oddeven"><td>';
+print 'Ordenar listado de pedidos por orden alfabético según referencia de producto';
+print '</td><td>';
+if (in_array('set_order_by', $def))
+{
+	print '<td align="center">'."\n";
+	print '<a href="'.$_SERVER["PHP_SELF"].'?action=del&value=set_order_by&label=set_order_by">';
+	print img_picto($langs->trans("Enabled"),'switch_on');
+	print '</a>';
+	print '</td>';
+}
+else
+{
+	print '<td align="center">'."\n";
+	print '<a href="'.$_SERVER["PHP_SELF"].'?action=set&value=set_order_by&label=set_order_by">';
+	print img_picto($langs->trans("Disabled"),'switch_off');
+	print '</a>';
+	print "</td>";
+}
+print '</td><td align="right">';
+print "</td></tr>\n";
+print '</form>';
+
 // Shippable Icon in List
 /* Kept as hidden feature for the moment, result seems bugged.
 Whet is definition of "shippable" according to all different STOCK_CALCULATE_... options ?

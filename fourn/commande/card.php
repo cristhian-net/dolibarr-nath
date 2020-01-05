@@ -2188,6 +2188,69 @@ elseif (! empty($object->id))
     <input type="hidden" name="socid" value="'.$societe->id.'">
 	';
 
+	print '
+		<style>
+			.anchorlike {
+				cursor: pointer;
+				text-decoration: underline;
+			}
+		</style>
+		<script>
+			$(function() {
+				let headerSelected = "linecoldescription";
+				let headerOrderByAsc = true;
+				const columnList = ["linecoldescription", "linecoluht", "linecolqty", "linecolht"];
+				const imgDown = $(\'<span class="nowrap myarrow">'.img_down("A-Z",0).'</span>\');
+				const imgUp = $(\'<span class="nowrap myarrow">'.img_up("Z-A",0).'</span>\');
+				$(".liste_titre > .linecoldescription, .liste_titre > .linecoluht, .liste_titre > .linecolqty,.liste_titre > .linecolht").each(function (i, v) {
+					$(v).addClass("orderby");
+					$(v).contents().wrap(\'<span class="anchorlike" />\');
+				});
+				$(".liste_titre > .linecoldescription").append(imgUp);
+				$("#tablelines > thead > tr").on("click", "td", function() {
+					const me = this;
+					let changed = false;
+					columnList.forEach(function(column) {
+						if ($(me).hasClass(column)) {
+							// Remove arrows
+							$(".myarrow").remove();
+							if(headerSelected === column) {
+								headerOrderByAsc = !headerOrderByAsc;
+							} else {
+								headerOrderByAsc = true;
+								headerSelected = column;
+							}
+							if (headerOrderByAsc) {
+								$(".liste_titre > ." + column).append(imgUp);
+							} else {
+								$(".liste_titre > ." + column).append(imgDown);
+							}
+							changed = true;
+						}
+					});
+					
+					if (changed) {
+						$("#tablelines > tbody > tr.drag").order(headerOrderByAsc, function(el) {
+								
+							const number = parseInt($("td."+headerSelected, el).text());
+							
+							if (!isNaN(number)) {
+								let data = $("td."+headerSelected, el).text();
+								if (data.indexOf(",") > -1 || data.indexOf(".") > -1) {
+									data = data.slice(0, -3);
+									data = data.replace(".", "").replace(",", "");
+								}
+								return parseInt(data);
+							}
+							return $("td."+headerSelected, el).text();
+						});
+						window.onDropFunction();
+					}
+				})
+			});
+		</script>
+	';
+
 	if (! empty($conf->use_javascript_ajax) && $object->statut == 0) {
 		include DOL_DOCUMENT_ROOT . '/core/tpl/ajaxrow.tpl.php';
 	}

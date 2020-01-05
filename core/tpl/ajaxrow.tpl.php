@@ -49,44 +49,50 @@ $(document).ready(function(){
     $(".tdlineupdown").css("background-repeat","no-repeat");
     $(".tdlineupdown").css("background-position","center center");
 
-    console.log("Prepare tableDnd for #<?php echo $tagidfortablednd; ?>");
-    $("#<?php echo $tagidfortablednd; ?>").tableDnD({
-		onDrop: function(table, row) {
-			var reloadpage = "<?php echo $forcereloadpage; ?>";
-			console.log("tableDND onDrop");
-			console.log(decodeURI($("#<?php echo $tagidfortablednd; ?>").tableDnDSerialize()));
-			$('#<?php echo $tagidfortablednd; ?> tr[data-element=extrafield]').attr('id', '');	// Set extrafields id to empty value in order to ignore them in tableDnDSerialize function
-			var roworder = cleanSerialize(decodeURI($("#<?php echo $tagidfortablednd; ?>").tableDnDSerialize()));
-			var table_element_line = "<?php echo $table_element_line; ?>";
-			var fk_element = "<?php echo $fk_element; ?>";
-			var element_id = "<?php echo $id; ?>";
-			var filepath = "<?php echo urlencode($filepath); ?>";
-			$.post("<?php echo DOL_URL_ROOT; ?>/core/ajax/row.php",
-					{
-						roworder: roworder,
-						table_element_line: table_element_line,
-						fk_element: fk_element,
-						element_id: element_id,
-						filepath: filepath
-					},
-					function() {
-						console.log("tableDND end of ajax call");
-						if (reloadpage == 1) {
-							//console.log('<?php echo dol_escape_js($_SERVER['QUERY_STRING']); ?>');
-							location.href = '<?php echo dol_escape_js($_SERVER['PHP_SELF']).'?'.dol_escape_js($_SERVER['QUERY_STRING']); ?>';
-						} else {
-							$("#<?php echo $tagidfortablednd; ?> .drag").each(
-									function( intIndex ) {
-										// $(this).removeClass("pair impair");
-										//if (intIndex % 2 == 0) $(this).addClass('impair');
-										//if (intIndex % 2 == 1) $(this).addClass('pair');
-									});
-						}
-					});
-		},
+	console.log("Prepare tableDnd for #<?php echo $tagidfortablednd; ?>");
+	
+	window.onDropFunction = function(table, row) {
+		var reloadpage = "<?php echo $forcereloadpage; ?>";
+		console.log("tableDND onDrop");
+		var serialized = window.tableDnD.tableDnDSerializeAll()
+		//console.log(decodeURI($("#<?php echo $tagidfortablednd; ?>").tableDnDSerialize()));
+		$('#<?php echo $tagidfortablednd; ?> tr[data-element=extrafield]').attr('id', '');	// Set extrafields id to empty value in order to ignore them in tableDnDSerialize function
+		var roworder = cleanSerialize(decodeURI(serialized));
+		var table_element_line = "<?php echo $table_element_line; ?>";
+		var fk_element = "<?php echo $fk_element; ?>";
+		var element_id = "<?php echo $id; ?>";
+		var filepath = "<?php echo urlencode($filepath); ?>";
+		$.post("<?php echo DOL_URL_ROOT; ?>/core/ajax/row.php",
+				{
+					roworder: roworder,
+					table_element_line: table_element_line,
+					fk_element: fk_element,
+					element_id: element_id,
+					filepath: filepath
+				},
+				function() {
+					console.log("tableDND end of ajax call");
+					if (reloadpage == 1) {
+						//console.log('<?php echo dol_escape_js($_SERVER['QUERY_STRING']); ?>');
+						location.href = '<?php echo dol_escape_js($_SERVER['PHP_SELF']).'?'.dol_escape_js($_SERVER['QUERY_STRING']); ?>';
+					} else {
+						$("#<?php echo $tagidfortablednd; ?> .drag").each(
+								function( intIndex ) {
+									// $(this).removeClass("pair impair");
+									//if (intIndex % 2 == 0) $(this).addClass('impair');
+									//if (intIndex % 2 == 1) $(this).addClass('pair');
+								});
+					}
+				});
+	}
+
+
+    window.tableDnD = $("#<?php echo $tagidfortablednd; ?>").tableDnD({
+		onDrop: onDropFunction,
 		onDragClass: "dragClass",
 		dragHandle: "td.tdlineupdown"
 	});
+	console.log(tableDnD);
     $(".tdlineupdown").hover( function() { $(this).addClass('showDragHandle'); },
     	function() { $(this).removeClass('showDragHandle'); }
     );
